@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <!-- Questa riga fa sì che il sito si veda bene sugli smartphone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050a06">
+  <title>Sfida Neon</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Icona della scheda del browser (una fogliolina disegnata, nessun file esterno) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23050a06'/%3E%3Cpath d='M50 85 C38 60 38 35 50 12 C62 35 62 60 50 85Z' fill='%2339ff14'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- Sfondo animato a griglia (solo decorazione) -->
+  <div class="sfondo-griglia" aria-hidden="true"></div>
+
+  <main class="contenitore">
+
+    <!-- ============================================================
+         SCHERMATA 1 — SBLOCCO CON CODICE
+         ============================================================ -->
+    <section id="schermata-sblocco" class="schermata attiva" aria-labelledby="titolo-sblocco">
+      <div class="badge-tappa">TAPPA 1 / 3</div>
+      <h1 id="titolo-sblocco" class="titolo-neon">SFIDA<br>NEON</h1>
+      <p class="sottotitolo">Inserisci il codice segreto per iniziare il gioco</p>
+
+      <form id="form-codice" class="pannello" autocomplete="off" novalidate>
+        <label for="campo-codice" class="etichetta">Codice segreto</label>
+        <input id="campo-codice" class="campo" type="text" inputmode="text"
+               autocapitalize="off" autocorrect="off" spellcheck="false"
+               autocomplete="off" placeholder="Scrivi qui il codice" required>
+        <button type="submit" class="pulsante pulsante-verde">SBLOCCA 🔓</button>
+        <!-- Qui compare il messaggio di errore -->
+        <p id="messaggio-codice" class="messaggio" role="alert" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ============================================================
+         SCHERMATA 2 — SLOT MACHINE
+         ============================================================ -->
+    <section id="schermata-slot" class="schermata" aria-labelledby="titolo-slot">
+      <div class="badge-tappa">TAPPA 2 / 3</div>
+      <h2 id="titolo-slot" class="titolo-neon titolo-medio">SLOT NEON</h2>
+      <p class="sottotitolo">Fai uscire <strong>tre simboli uguali</strong> per passare alla tappa successiva!</p>
+
+      <div class="slot" id="slot">
+        <div class="slot-luci" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="rulli">
+          <!-- I simboli dentro i rulli vengono inseriti da gioco.js -->
+          <div class="rullo"><div class="striscia"></div></div>
+          <div class="rullo"><div class="striscia"></div></div>
+          <div class="rullo"><div class="striscia"></div></div>
+          <div class="linea-vincente" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <p id="messaggio-slot" class="messaggio messaggio-slot" aria-live="polite">Premi GIRA per iniziare!</p>
+
+      <button id="pulsante-gira" class="pulsante pulsante-rosa pulsante-gigante" type="button">GIRA 🎰</button>
+      <button id="pulsante-vai-quiz" class="pulsante pulsante-verde pulsante-gigante nascosto" type="button">VAI AL QUIZ ➜</button>
+    </section>
+
+    <!-- ============================================================
+         SCHERMATA 3 — QUIZ
+         ============================================================ -->
+    <section id="schermata-quiz" class="schermata" aria-labelledby="testo-domanda">
+      <div class="badge-tappa">TAPPA 3 / 3</div>
+      <h2 class="titolo-neon titolo-medio">QUIZ</h2>
+
+      <!-- Indicatore di avanzamento (pallini) -->
+      <div id="avanzamento" class="avanzamento" aria-hidden="true"></div>
+      <p id="contatore-domanda" class="contatore"></p>
+
+      <div class="pannello">
+        <p id="testo-domanda" class="testo-domanda"></p>
+        <div id="risposte" class="risposte"></div>
+      </div>
+
+      <!-- Pannello che compare quando si sbaglia una risposta -->
+      <div id="pannello-errore" class="pannello pannello-errore nascosto" role="alert">
+        <p class="errore-titolo">Ops, risposta sbagliata! 😅</p>
+        <p id="testo-errore" class="testo-errore"></p>
+        <button id="pulsante-rifai" class="pulsante pulsante-rosa" type="button">RIFAI IL QUIZ ↻</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCHERMATA 4 — BANNER DI VITTORIA
+         ============================================================ -->
+    <section id="schermata-vittoria" class="schermata" aria-labelledby="testo-vittoria">
+      <div class="banner-vittoria">
+        <div class="coppa" aria-hidden="true">🏆</div>
+        <h2 id="testo-vittoria" class="vittoria-titolo">VITTORIA!</h2>
+        <p class="vittoria-testo">Vai a ritirare il premio da un Peer</p>
+        <div class="vittoria-stelle" aria-hidden="true">★ ★ ★</div>
+      </div>
+      <p class="nota-vittoria">Mostra questa schermata a un Peer 👀</p>
+    </section>
+
+  </main>
+
+  <!-- Tela trasparente per i coriandoli della vittoria -->
+  <canvas id="coriandoli" aria-hidden="true"></canvas>
+
+  <!-- ORDINE DEGLI SCRIPT: prima configurazione e domande, poi il gioco -->
+  <script src="config.js"></script>
+  <script src="domande.js"></script>
+  <script src="gioco.js"></script>
+</body>
+</html>
