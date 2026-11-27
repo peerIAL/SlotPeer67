@@ -1,0 +1,446 @@
+/* =====================================================================
+   STILE GRAFICO — tema arcade / neon verde
+   ---------------------------------------------------------------------
+   Pensato prima per smartphone in verticale (mobile-first).
+   I colori principali sono definiti qui sotto in un unico punto:
+   cambiandoli si aggiorna tutto il sito.
+   ===================================================================== */
+
+:root {
+  --sfondo: #050a06;          /* nero-verde molto scuro */
+  --sfondo-pannello: #0c1a10; /* sfondo dei riquadri */
+  --verde: #39ff14;           /* verde neon principale */
+  --verde-scuro: #1a8a0a;
+  --rosa: #ff2fd0;            /* rosa neon per i pulsanti d'azione */
+  --giallo: #ffe600;          /* giallo per le vittorie */
+  --rosso: #ff3b5c;           /* errori */
+  --testo: #eaffea;
+  --testo-tenue: #a6cfa8;
+  --cella: 84px;              /* altezza di un simbolo nella slot */
+  --raggio: 18px;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent; /* niente riquadro blu al tocco */
+  overflow-x: hidden;
+}
+
+/* Sfondo a griglia stile "arcade anni '80" */
+.sfondo-griglia {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(57,255,20,.18), transparent 60%),
+    radial-gradient(ellipse at 50% 110%, rgba(255,47,208,.16), transparent 55%),
+    linear-gradient(rgba(57,255,20,.07) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(57,255,20,.07) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--sfondo);
+}
+
+.contenitore {
+  width: 100%;
+  max-width: 480px;           /* su computer resta stretto come uno smartphone */
+  margin: 0 auto;
+  padding: 20px 16px calc(28px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- Schermate: se ne vede una sola alla volta ---------- */
+.schermata {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  min-height: calc(100dvh - 48px);
+  justify-content: center;
+}
+.schermata.attiva {
+  display: flex;
+  animation: entra .45s ease-out;
+}
+@keyframes entra {
+  from { opacity: 0; transform: translateY(18px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.nascosto { display: none !important; }
+
+/* ---------- Titoli e testi ---------- */
+.badge-tappa {
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: var(--sfondo);
+  background: var(--verde);
+  padding: 5px 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 14px var(--verde);
+}
+
+.titolo-neon {
+  margin: 4px 0 0;
+  font-size: clamp(2.8rem, 15vw, 4.2rem);
+  line-height: .95;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #f4fff0;
+  text-shadow:
+    0 0 6px var(--verde),
+    0 0 18px var(--verde),
+    0 0 40px var(--verde-scuro);
+  animation: sfarfallio 4s infinite;
+}
+.titolo-medio { font-size: clamp(2rem, 11vw, 3rem); }
+
+@keyframes sfarfallio {
+  0%, 92%, 100% { opacity: 1; }
+  93% { opacity: .6; }
+  94% { opacity: 1; }
+  96% { opacity: .75; }
+}
+
+.sottotitolo {
+  margin: 0;
+  color: var(--testo-tenue);
+  font-size: 1.05rem;
+  max-width: 34ch;
+}
+.sottotitolo strong { color: var(--giallo); }
+
+/* ---------- Pannelli e campi ---------- */
+.pannello {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(57,255,20,.06), rgba(0,0,0,.25)), var(--sfondo-pannello);
+  border: 2px solid rgba(57,255,20,.55);
+  border-radius: var(--raggio);
+  padding: 18px;
+  box-shadow: 0 0 22px rgba(57,255,20,.18), inset 0 0 20px rgba(57,255,20,.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.etichetta {
+  text-align: left;
+  font-weight: 700;
+  color: var(--verde);
+  letter-spacing: .05em;
+}
+
+.campo {
+  width: 100%;
+  font-size: 1.25rem;          /* almeno 16px: evita lo zoom automatico su iPhone */
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid var(--verde-scuro);
+  background: #020502;
+  color: var(--testo);
+  text-align: center;
+  letter-spacing: .08em;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.campo:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 14px rgba(57,255,20,.5);
+}
+.campo.scuoti { animation: scuoti .4s; border-color: var(--rosso); }
+@keyframes scuoti {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.messaggio {
+  min-height: 1.4em;
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.messaggio.errore { color: #ff9db0; }
+.messaggio.successo { color: var(--verde); }
+
+/* ---------- Pulsanti (grandi, facili da toccare) ---------- */
+.pulsante {
+  width: 100%;
+  min-height: 60px;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  cursor: pointer;
+  color: #04110a;
+  transition: transform .1s, box-shadow .2s, filter .2s;
+  touch-action: manipulation;  /* niente ritardo del doppio tocco */
+  user-select: none;
+}
+.pulsante:active { transform: scale(.96); }
+.pulsante:disabled { filter: grayscale(.8) brightness(.6); cursor: not-allowed; }
+
+.pulsante-verde {
+  background: linear-gradient(180deg, #7dff5c, var(--verde));
+  box-shadow: 0 6px 0 var(--verde-scuro), 0 0 22px rgba(57,255,20,.55);
+}
+.pulsante-rosa {
+  background: linear-gradient(180deg, #ff7ce4, var(--rosa));
+  box-shadow: 0 6px 0 #9a1680, 0 0 22px rgba(255,47,208,.55);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+.pulsante-gigante { min-height: 72px; font-size: 1.6rem; }
+.pulsante-verde:active, .pulsante-rosa:active { box-shadow: 0 2px 0 rgba(0,0,0,.4); transform: translateY(4px); }
+
+/* ---------- Slot machine ---------- */
+.slot {
+  width: 100%;
+  padding: 16px 12px 14px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #16301b, #08140b);
+  border: 3px solid var(--verde);
+  box-shadow: 0 0 26px rgba(57,255,20,.45), inset 0 0 30px rgba(0,0,0,.7);
+}
+
+/* Lucine decorative in alto */
+.slot-luci {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px 12px;
+}
+.slot-luci span {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--giallo);
+  box-shadow: 0 0 10px var(--giallo);
+  animation: lampeggia 1s infinite alternate;
+}
+.slot-luci span:nth-child(even) { animation-delay: .5s; background: var(--rosa); box-shadow: 0 0 10px var(--rosa); }
+@keyframes lampeggia { from { opacity: .25; } to { opacity: 1; } }
+.slot.vincita .slot-luci span { animation-duration: .15s; }
+
+.rulli {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.rullo {
+  height: calc(var(--cella) * 3);
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #d9e8d9 0%, #ffffff 50%, #d9e8d9 100%);
+  box-shadow: inset 0 10px 14px rgba(0,0,0,.45), inset 0 -10px 14px rgba(0,0,0,.45);
+  position: relative;
+}
+/* Sfumature sopra e sotto per dare l'effetto "cilindro" */
+.rullo::before, .rullo::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: calc(var(--cella) * .9);
+  z-index: 2;
+  pointer-events: none;
+}
+.rullo::before { top: 0; background: linear-gradient(#0b160d, rgba(11,22,13,0)); }
+.rullo::after  { bottom: 0; background: linear-gradient(rgba(11,22,13,0), #0b160d); }
+
+.striscia {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.striscia.in-movimento { filter: blur(1.5px); }
+
+.cella {
+  height: var(--cella);
+  flex: 0 0 var(--cella);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.cella svg { width: 100%; height: 100%; max-width: 70px; }
+
+/* Linea rossa centrale: la "riga vincente" */
+.linea-vincente {
+  position: absolute;
+  left: -6px; right: -6px;
+  top: calc(var(--cella) * 1.5);
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--rosa);
+  box-shadow: 0 0 10px var(--rosa);
+  border-radius: 2px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Effetto quando si vince */
+.slot.vincita { animation: bagliore .5s infinite alternate; }
+.slot.vincita .rullo { animation: rullo-vince .5s infinite alternate; }
+@keyframes bagliore {
+  from { box-shadow: 0 0 20px rgba(255,230,0,.5); border-color: var(--giallo); }
+  to   { box-shadow: 0 0 50px rgba(255,230,0,.95); border-color: var(--verde); }
+}
+@keyframes rullo-vince {
+  from { box-shadow: inset 0 0 0 4px var(--giallo); }
+  to   { box-shadow: inset 0 0 0 4px var(--verde); }
+}
+
+.messaggio-slot { font-size: 1.25rem; min-height: 1.6em; }
+.messaggio-slot.perso { color: #ff9db0; animation: scuoti .4s; }
+.messaggio-slot.vinto {
+  color: var(--giallo);
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-shadow: 0 0 14px var(--giallo);
+  animation: pulsa .6s infinite alternate;
+}
+@keyframes pulsa { from { transform: scale(1); } to { transform: scale(1.12); } }
+
+/* ---------- Quiz ---------- */
+.avanzamento { display: flex; gap: 10px; }
+.avanzamento span {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--verde);
+}
+.avanzamento span.fatto { background: var(--verde); box-shadow: 0 0 10px var(--verde); }
+.avanzamento span.corrente { background: var(--giallo); border-color: var(--giallo); box-shadow: 0 0 10px var(--giallo); }
+
+.contatore { margin: 0; color: var(--testo-tenue); font-weight: 700; letter-spacing: .1em; }
+
+.testo-domanda {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.risposte { display: flex; flex-direction: column; gap: 10px; }
+
+.risposta {
+  width: 100%;
+  min-height: 58px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(57,255,20,.6);
+  background: rgba(57,255,20,.06);
+  color: var(--testo);
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  touch-action: manipulation;
+  transition: background .15s, transform .1s;
+}
+.risposta:active { transform: scale(.98); }
+.risposta .lettera {
+  flex: 0 0 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--verde);
+  color: var(--sfondo);
+  font-weight: 900;
+}
+.risposta.giusta  { background: rgba(57,255,20,.3);  border-color: var(--verde); box-shadow: 0 0 16px var(--verde); }
+.risposta.sbagliata { background: rgba(255,59,92,.3); border-color: var(--rosso); box-shadow: 0 0 16px var(--rosso); }
+.risposta.sbagliata .lettera { background: var(--rosso); color: #fff; }
+.risposta:disabled { cursor: default; }
+
+.pannello-errore {
+  border-color: var(--rosso);
+  box-shadow: 0 0 22px rgba(255,59,92,.35);
+  animation: entra .35s ease-out;
+}
+.errore-titolo { margin: 0; font-size: 1.35rem; font-weight: 900; color: #ff9db0; }
+.testo-errore { margin: 0; line-height: 1.45; }
+.testo-errore strong { color: var(--verde); }
+
+/* ---------- Banner di vittoria ---------- */
+.banner-vittoria {
+  width: 100%;
+  padding: 34px 18px;
+  border-radius: 26px;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 14px, transparent 14px 28px),
+    linear-gradient(160deg, #0f3d12, #05170a 55%, #3a0a33);
+  border: 4px solid var(--giallo);
+  animation: banner-bordo 1.2s infinite alternate;
+}
+@keyframes banner-bordo {
+  from { border-color: var(--giallo); box-shadow: 0 0 30px rgba(255,230,0,.6), 0 0 80px rgba(57,255,20,.3); }
+  to   { border-color: var(--verde);  box-shadow: 0 0 50px rgba(57,255,20,.8), 0 0 90px rgba(255,47,208,.35); }
+}
+.coppa { font-size: 5rem; line-height: 1; animation: salta 1s infinite ease-in-out; }
+@keyframes salta { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-12px) rotate(6deg); } }
+
+.vittoria-titolo {
+  margin: 10px 0;
+  font-size: clamp(2.4rem, 12.5vw, 4.4rem);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--giallo);
+  text-shadow: 0 0 10px var(--giallo), 0 0 30px #ff9900, 0 4px 0 #8a5a00;
+  animation: pulsa .7s infinite alternate;
+}
+.vittoria-testo {
+  margin: 0;
+  font-size: clamp(1.5rem, 7.5vw, 2.1rem);
+  font-weight: 900;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 0 10px var(--verde), 0 0 24px var(--verde);
+}
+.vittoria-stelle { margin-top: 14px; font-size: 1.8rem; color: var(--giallo); letter-spacing: .3em; text-shadow: 0 0 10px var(--giallo); }
+.nota-vittoria { color: var(--testo-tenue); font-weight: 700; }
+
+/* ---------- Coriandoli ---------- */
+#coriandoli {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;      /* non blocca i tocchi */
+  z-index: 50;
+}
+
+/* ---------- Schermi piccoli / grandi ---------- */
+@media (max-height: 680px) {
+  :root { --cella: 70px; }
+  .titolo-neon { font-size: 2.6rem; }
+  .schermata { gap: 10px; }
+}
+@media (min-width: 700px) {
+  :root { --cella: 96px; }
+}
+
+/* Chi ha attivato "riduci movimento" nel telefono vede meno animazioni */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
