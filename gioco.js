@@ -306,6 +306,7 @@ $("pulsante-gira").addEventListener("click", async () => {
 
 $("pulsante-vai-quiz").addEventListener("click", () => {
   $("slot").classList.remove("vincita");
+  fermaCoriandoli();
   avviaQuiz();
   mostraSchermata("schermata-quiz");
 });
@@ -319,24 +320,54 @@ rulli.forEach((_, r) => disegnaRulloFermo(r));
 
 let domandaCorrente = 0;
 let rispostaBloccata = false; // evita tocchi multipli sulla stessa domanda
+let domandeQuiz = [];         // le domande estratte per questo tentativo
+
+// Mescola un elenco in ordine casuale (algoritmo di Fisher-Yates)
+function mescola(elenco) {
+  const copia = [...elenco];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = casuale(i + 1);
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+/**
+ * Estrae a caso DOMANDE_PER_QUIZ domande diverse dall'elenco DOMANDE
+ * e mescola l'ordine delle risposte, così la risposta giusta
+ * non è sempre nella stessa posizione.
+ */
+function preparaDomande() {
+  const quante = Math.min(DOMANDE_PER_QUIZ, DOMANDE.length);
+  return mescola(DOMANDE).slice(0, quante).map((d) => {
+    const ordine = mescola(d.risposte.map((_, i) => i));
+    return {
+      testo: d.testo,
+      risposte: ordine.map((i) => d.risposte[i]),
+      corretta: ordine.indexOf(d.corretta),
+      spiegazione: d.spiegazione,
+    };
+  });
+}
 
 function avviaQuiz() {
   domandaCorrente = 0;
+  domandeQuiz = preparaDomande(); // ogni tentativo ha una nuova estrazione
   $("pannello-errore").classList.add("nascosto");
   mostraDomanda();
 }
 
 function mostraDomanda() {
-  const d = DOMANDE[domandaCorrente];
+  const d = domandeQuiz[domandaCorrente];
   rispostaBloccata = false;
 
   // Pallini di avanzamento
-  $("avanzamento").innerHTML = DOMANDE.map((_, i) => {
+  $("avanzamento").innerHTML = domandeQuiz.map((_, i) => {
     const classe = i < domandaCorrente ? "fatto" : i === domandaCorrente ? "corrente" : "";
     return `<span class="${classe}"></span>`;
   }).join("");
 
-  $("contatore-domanda").textContent = `DOMANDA ${domandaCorrente + 1} DI ${DOMANDE.length}`;
+  $("contatore-domanda").textContent = `DOMANDA ${domandaCorrente + 1} DI ${domandeQuiz.length}`;
   $("testo-domanda").textContent = d.testo;
 
   // Pulsanti delle risposte (A, B, C, D)
@@ -361,7 +392,7 @@ function rispondi(indiceScelto, pulsanteScelto) {
   if (rispostaBloccata) return;
   rispostaBloccata = true;
 
-  const d = DOMANDE[domandaCorrente];
+  const d = domandeQuiz[domandaCorrente];
   const pulsanti = Array.from($("risposte").children);
   pulsanti.forEach((b) => (b.disabled = true));
 
@@ -371,7 +402,7 @@ function rispondi(indiceScelto, pulsanteScelto) {
     vibra(60);
     setTimeout(() => {
       domandaCorrente++;
-      if (domandaCorrente < DOMANDE.length) {
+      if (domandaCorrente < domandeQuiz.length) {
         mostraDomanda();
       } else {
         mostraVittoria();
@@ -436,6 +467,13 @@ const tela = $("coriandoli");
 const ctx = tela.getContext("2d");
 let particelle = [];
 let animazioneAttiva = false;
+let ultimoStop = 0; // momento in cui i coriandoli sono stati fermati
+
+// Ferma subito i coriandoli (usato quando si passa al quiz)
+function fermaCoriandoli() {
+  ultimoStop = performance.now();
+  particelle = [];
+}
 
 function ridimensionaTela() {
   const dpr = window.devicePixelRatio || 1;
@@ -448,12 +486,13 @@ ridimensionaTela();
 
 function lanciaCoriandoli(durataMs) {
   const colori = ["#39ff14", "#ff2fd0", "#ffe600", "#00e5ff", "#ffffff", "#ff8c1a"];
-  const fine = performance.now() + durataMs;
+  const avvio = performance.now();
+  const fine = avvio + durataMs;
   const larghezza = window.innerWidth;
 
   // Creiamo nuovi coriandoli finché dura la "pioggia"
   function genera() {
-    if (performance.now() > fine) return;
+    if (performance.now() > fine || ultimoStop >= avvio) return;
     for (let i = 0; i < 6; i++) {
       particelle.push({
         x: Math.random() * larghezza,
